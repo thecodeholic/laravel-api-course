@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        return response()->json([], 200);
+        return PostResource::collection(Post::with('author')->paginate());
     }
 
     /**
@@ -28,23 +29,15 @@ class PostController extends Controller
         $data['author_id'] = 2;
         $post = Post::create($data);
 
-        return response()->json($post, 201);
+        return response()->json(new PostResource($post), 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Post $post)
     {
-        return response()->json([
-            'id' => 1,
-            'title' => 'Test',
-            'body' => 'Long text',
-            'author' => [
-                'id' => 1,
-                'name' => 'Zura'
-            ]
-        ], 200);
+        return new PostResource($post);
     }
 
     /**
@@ -56,14 +49,15 @@ class PostController extends Controller
 
         $post->update($data);
 
-        return response()->json($post, 200);
+        return new PostResource($post);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post)
     {
+        $post->delete();
         return response()->noContent();
     }
 }

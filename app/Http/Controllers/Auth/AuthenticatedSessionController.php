@@ -4,22 +4,27 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request): JsonResponse
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $token = $request->user()->createToken('auth-token')->plainTextToken;
 
-        return response()->noContent();
+        return response()->json([
+            'user' => new UserResource($request->user()),
+            'token' => $token
+        ]);
     }
 
     /**
@@ -27,11 +32,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): Response
     {
-        Auth::guard('web')->logout();
+        $user = $request->user();
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
+        $user->currentAccessToken()->delete();
 
         return response()->noContent();
     }

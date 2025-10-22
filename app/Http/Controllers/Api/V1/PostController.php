@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -18,32 +21,14 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        // $all = $request->all();
-        // $title = $request->input('title');
-        $data = $request->only(['title', 'body']);
-        // $author = $request->input('author');
-        // return $author;
-        $data['id'] = 100;
+        $data = $request->validated();
 
-        // if (true) {
-        //     return response()->json([
-        //         'success' => false,
-        //         // 'message' => 'You are not authenticated',
-        //         'errors' => [
-        //             ['title is required']
-        //         ]
-        //     ], 422);
-        // }
+        $data['author_id'] = 2;
+        $post = Post::create($data);
 
-        return response()
-            ->json([
-                'success' => true,
-                'data' => $data
-            ])
-            ->setStatusCode(201)
-            ->header('Test', 'Zura');
+        return response()->json($post, 201);
     }
 
     /**
@@ -65,15 +50,13 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        $data = $request->validate([
-            'title' => 'required',
-            'body' => 'required'
-        ]);
+        $data = $request->validated();
 
-        // TODO
-        return response()->json([], 200);
+        $post->update($data);
+
+        return response()->json($post, 200);
     }
 
     /**

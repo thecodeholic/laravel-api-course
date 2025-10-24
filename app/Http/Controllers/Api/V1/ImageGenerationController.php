@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GeneratePromptRequest;
+use App\Http\Resources\ImageGenerationResource;
 use App\Models\ImageGeneration;
 use App\Services\OpenAIService;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,20 @@ class ImageGenerationController extends Controller
     public function __construct(
         private OpenAIService $openAIService
     ) {}
+
+    /**
+     * Get all image generations for the authenticated user.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $generations = $user->imageGenerations()
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return ImageGenerationResource::collection($generations)->response();
+    }
 
     /**
      * Generate a prompt from an uploaded image.

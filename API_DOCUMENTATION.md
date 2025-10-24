@@ -3,9 +3,16 @@
 ## Overview
 This API endpoint allows authenticated users to upload an image and receive a detailed prompt that can be used to generate similar images with AI image generation tools.
 
-## Endpoint
+## Endpoints
+
+### Generate Prompt from Image
 ```
 POST /api/v1/generate-prompt
+```
+
+### Get User Generations
+```
+GET /api/v1/generations
 ```
 
 ## Authentication
@@ -26,10 +33,42 @@ POST /api/v1/generate-prompt
 
 ## Response Format
 
-### Success Response (200)
+### Success Response (200) - Generate Prompt
 ```json
 {
     "prompt": "A detailed description of the image that can be used for AI image generation..."
+}
+```
+
+### Success Response (200) - Get Generations
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "image_url": "http://localhost:8000/storage/uploads/images/example_1234567890.jpg",
+            "generated_prompt": "A beautiful landscape with mountains...",
+            "original_filename": "example.jpg",
+            "file_size": 1024000,
+            "mime_type": "image/jpeg",
+            "created_at": "2025-10-22T15:30:00.000000Z",
+            "updated_at": "2025-10-22T15:30:00.000000Z"
+        }
+    ],
+    "links": {
+        "first": "http://localhost:8000/api/v1/generations?page=1",
+        "last": "http://localhost:8000/api/v1/generations?page=1",
+        "prev": null,
+        "next": null
+    },
+    "meta": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 1,
+        "per_page": 15,
+        "to": 1,
+        "total": 1
+    }
 }
 ```
 
@@ -63,7 +102,7 @@ POST /api/v1/generate-prompt
 
 ## Example Usage
 
-### cURL
+### cURL - Generate Prompt
 ```bash
 curl -X POST \
   http://localhost:8000/api/v1/generate-prompt \
@@ -71,7 +110,15 @@ curl -X POST \
   -F 'image=@/path/to/your/image.jpg'
 ```
 
-### JavaScript (Fetch)
+### cURL - Get Generations
+```bash
+curl -X GET \
+  http://localhost:8000/api/v1/generations \
+  -H 'Authorization: Bearer YOUR_TOKEN_HERE' \
+  -H 'Content-Type: application/json'
+```
+
+### JavaScript (Fetch) - Generate Prompt
 ```javascript
 const formData = new FormData();
 formData.append('image', fileInput.files[0]);
@@ -85,6 +132,19 @@ fetch('/api/v1/generate-prompt', {
 })
 .then(response => response.json())
 .then(data => console.log(data.prompt));
+```
+
+### JavaScript (Fetch) - Get Generations
+```javascript
+fetch('/api/v1/generations', {
+    method: 'GET',
+    headers: {
+        'Authorization': 'Bearer YOUR_TOKEN_HERE',
+        'Content-Type': 'application/json'
+    }
+})
+.then(response => response.json())
+.then(data => console.log(data.data)); // Array of generations
 ```
 
 ## Enhanced Validation Rules
@@ -132,6 +192,7 @@ The API includes comprehensive image validation:
 - ✅ Filename sanitization for security
 - ✅ OpenAI GPT-4 Vision integration
 - ✅ Database storage of generation history
+- ✅ Retrieve user's generation history with pagination
 - ✅ File cleanup on errors
 - ✅ Detailed error handling
 

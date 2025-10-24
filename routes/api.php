@@ -16,6 +16,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])
 
         Route::apiResource('posts', PostController::class);
 
+        Route::get('/generations', [ImageGenerationController::class, 'index']);
+
         Route::post('/generate-prompt', [ImageGenerationController::class, 'generatePrompt'])
             ->middleware('throttle:5,1'); // 5 requests per minute
 

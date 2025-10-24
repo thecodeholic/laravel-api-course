@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ImageGenerationController;
 use App\Http\Controllers\Api\V1\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])
     Route::prefix('v1')->group(function() {
 
         Route::apiResource('posts', PostController::class);
+
+        Route::get('/generations', [ImageGenerationController::class, 'index']);
+
+        Route::post('/generate-prompt', [ImageGenerationController::class, 'generatePrompt'])
+            ->middleware('throttle:5,1'); // 5 requests per minute
 
     });
 });
